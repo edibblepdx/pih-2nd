@@ -1,0 +1,14 @@
+Exercise 1.5: What would be the effect of replacing <= by < in the original definition of
+qsort? Hist: consider the example qsort [2,2,3,1,1].
+
+Answer: Duplicate items would be dropped
+
+qsort [2,2,3,1,1]
+=   { applying qsort }
+qsort [1, 1] ++ [2] ++ qsort [3]
+= { applying qsort }
+([] ++ [1] ++ []) ++ [2] ++ [3]
+=   { applying ++ }
+[1] ++ [2] ++ [3]
+=   { applying ++ }
+[1, 2, 3]
