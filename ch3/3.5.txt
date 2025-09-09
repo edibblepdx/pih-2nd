@@ -1,0 +1,13 @@
+Exercise 3.5: Why is it not feasible for a function to implement Eq?
+
+You would have to check an infinite number of inputs
+to determine function equality.
+
+Let f :: Int -> Int be 0 for all input x, and 
+let g :: Int -> Int be {1 if x is 0; 0 otherwise}.
+Then f /= g. Even on a subset of the real line,
+there are infinite real inputs by the density
+property.
+
+If the output type of f and g implement Eq then
+comparison is feasible for single input.
