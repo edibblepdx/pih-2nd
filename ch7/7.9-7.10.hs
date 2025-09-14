@@ -9,7 +9,7 @@ altMap :: (a -> b) -> (a -> b) -> [a] -> [b]
 altMap _ _ [] = []
 altMap f g (x : xs) = f x : altMap g f xs
 
--- Exercise 7.10: using altMap, defien a function luhn :: [Int] -> Bool that
+-- Exercise 7.10: using altMap, define a function luhn :: [Int] -> Bool that
 -- implements the Luhn algorithm from the exercises in chapter 4 for bank card
 -- numbers of any length.
 
