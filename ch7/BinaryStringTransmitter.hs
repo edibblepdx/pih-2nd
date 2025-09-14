@@ -1,5 +1,7 @@
 -- Binary string transmitter
 
+module BinaryStringTransmitter where
+
 import Data.Char
 
 type Bit = Int

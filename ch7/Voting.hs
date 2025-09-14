@@ -1,5 +1,7 @@
 -- Voting Algorithm
 
+module Voting where
+
 -- First past the post
 
 import Data.List
