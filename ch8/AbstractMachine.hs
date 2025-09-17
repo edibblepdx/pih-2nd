@@ -1,6 +1,8 @@
 -- Abstract machine
 -- describes the step-by-step process of expression evaluation
 
+module AbstractMachine where
+
 -- Expression
 data Expr = Val Int | Add Expr Expr
 
