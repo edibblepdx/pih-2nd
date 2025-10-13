@@ -1,6 +1,19 @@
+-- TODO:
+-- Exercise 11.1: Using the function gametree, verify that there are 549,946
+-- nodes in the complete game tree for a 3 x 3 tic-tac-toe game starting from
+-- the empty grid, and that the maximum depth of this tree is 9.
+
+-- TODO:
+-- Exercise 11.2: Our tic-tac-toe program always chooses the first move from the
+-- list of best moves. Modify the final program to choose a random move from the
+-- list of best moves, using the function randomRIO :: (Int,Int) -> IO Int from
+-- System.Random to generate a random integer in the given range.
+
+import Prelude
 import Data.Char
 import Data.List
 import System.IO
+import System.Random hiding (next)
 
 -- Basic declarations
 
