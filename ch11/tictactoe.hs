@@ -1,19 +1,27 @@
--- TODO:
--- Exercise 11.1: Using the function gametree, verify that there are 549,946
--- nodes in the complete game tree for a 3 x 3 tic-tac-toe game starting from
--- the empty grid, and that the maximum depth of this tree is 9.
-
--- TODO:
--- Exercise 11.2: Our tic-tac-toe program always chooses the first move from the
--- list of best moves. Modify the final program to choose a random move from the
--- list of best moves, using the function randomRIO :: (Int,Int) -> IO Int from
--- System.Random to generate a random integer in the given range.
-
-import Prelude
 import Data.Char
 import Data.List
 import System.IO
 import System.Random hiding (next)
+import Prelude
+
+-- Exercise 11.1: Using the function gametree, verify that there are 549,946
+-- nodes in the complete game tree for a 3 x 3 tic-tac-toe game starting from
+-- the empty grid, and that the maximum depth of this tree is 9.
+
+maxdepth :: Int
+maxdepth = maxdepth' (gametree empty O)
+
+maxdepth' :: Tree Grid -> Int
+maxdepth' (Node _ []) = 0
+maxdepth' (Node _ ts) = 1 + maximum [maxdepth' t | t <- ts]
+
+-- gametree :: Grid -> Player -> Tree Grid
+-- gametree g p = Node g [gametree g' (next p) | g' <- moves g p]
+
+-- Exercise 11.2: Our tic-tac-toe program always chooses the first move from the
+-- list of best moves. Modify the final program to choose a random move from the
+-- list of best moves, using the function randomRIO :: (Int,Int) -> IO Int from
+-- System.Random to generate a random integer in the given range.
 
 -- Basic declarations
 
@@ -223,11 +231,14 @@ minmax (Node g ts)
     ts' = map minmax ts
     ps = [p | Node (_, p) _ <- ts']
 
-bestmove :: Grid -> Player -> Grid
-bestmove g p = head [g' | Node (g', p') _ <- ts, p' == best]
+bestmove :: Grid -> Player -> IO Grid
+bestmove g p = do
+  n <- randomRIO (0, length bs - 1)
+  return (bs !! n)
   where
     tree = prune depth (gametree g p)
     Node (_, best) ts = minmax tree
+    bs = [g' | Node (g', p') _ <- ts, p' == best]
 
 -- Human vs computer
 
@@ -257,4 +268,5 @@ play' g p
         [g'] -> play g' (next p)
   | p == X = do
       putStr "Player X is thinking... "
-      (play $! bestmove g p) (next p)
+      m <- bestmove g p
+      (play $! m) (next p)
