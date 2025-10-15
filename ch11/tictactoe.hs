@@ -1,5 +1,6 @@
 import Data.Char
 import Data.List
+import Data.Ord
 import System.IO
 import System.Random hiding (next)
 import Prelude
@@ -8,20 +9,41 @@ import Prelude
 -- nodes in the complete game tree for a 3 x 3 tic-tac-toe game starting from
 -- the empty grid, and that the maximum depth of this tree is 9.
 
-maxdepth :: Int
-maxdepth = maxdepth' (gametree empty O)
+maxdepth' :: Int
+maxdepth' = maxdepth (gametree empty O)
 
-maxdepth' :: Tree Grid -> Int
-maxdepth' (Node _ []) = 0
-maxdepth' (Node _ ts) = 1 + maximum [maxdepth' t | t <- ts]
-
--- gametree :: Grid -> Player -> Tree Grid
--- gametree g p = Node g [gametree g' (next p) | g' <- moves g p]
+maxdepth :: Tree a -> Int
+maxdepth (Node _ []) = 0
+maxdepth (Node _ ts) = 1 + maximum [maxdepth t | t <- ts]
 
 -- Exercise 11.2: Our tic-tac-toe program always chooses the first move from the
 -- list of best moves. Modify the final program to choose a random move from the
 -- list of best moves, using the function randomRIO :: (Int,Int) -> IO Int from
 -- System.Random to generate a random integer in the given range.
+
+-- Exercsie 11.3: Alternatively, modify the final program to choose a move that
+-- attempts to take the quickest route to a win, by calculating the depths of
+-- resulting game trees and selecting a move that results in a tree with the
+-- smallest depth.
+
+shortestmove :: Grid -> Player -> Grid
+shortestmove g p = mindepth ts best
+  where
+    tree = prune depth (gametree g p)
+    Node (_, best) ts = minmax tree
+
+mindepth :: [Tree (Grid, Player)] -> Player -> Grid
+mindepth ts p
+  | null tds = error "no best move"
+  | otherwise = fst (minimumBy (comparing snd) tds)
+  where
+    tds = [(g', maxdepth t) | t@(Node (g', p') _) <- ts, p == p']
+
+-- Exercise 11.4: Modify the final program to:
+-- a. Let the user decide if they wish to play first or second;
+-- b. Allow the length of a winning line to also be changed;
+-- c. Generate the game tree once, rather than for each move;
+-- d. Reduce the side of game tree using alpha-beta pruning.
 
 -- Basic declarations
 
@@ -231,14 +253,11 @@ minmax (Node g ts)
     ts' = map minmax ts
     ps = [p | Node (_, p) _ <- ts']
 
-bestmove :: Grid -> Player -> IO Grid
-bestmove g p = do
-  n <- randomRIO (0, length bs - 1)
-  return (bs !! n)
+bestmoves :: Grid -> Player -> [Grid]
+bestmoves g p = [g' | Node (g', p') _ <- ts, p' == best]
   where
     tree = prune depth (gametree g p)
     Node (_, best) ts = minmax tree
-    bs = [g' | Node (g', p') _ <- ts, p' == best]
 
 -- Human vs computer
 
@@ -268,5 +287,8 @@ play' g p
         [g'] -> play g' (next p)
   | p == X = do
       putStr "Player X is thinking... "
-      m <- bestmove g p
-      (play $! m) (next p)
+      -- let gs = bestmoves g p
+      -- n <- randomRIO (0, length gs - 1)
+      -- play (gs !! n) (next p)
+      let g' = shortestmove g p
+      play g' (next p)
