@@ -2,19 +2,21 @@ import Data.Char
 import Data.List
 import Data.Ord
 import System.IO
-import System.Random hiding (next)
+-- import System.Random hiding (next)
 import Prelude
 
 -- Exercise 11.1: Using the function gametree, verify that there are 549,946
 -- nodes in the complete game tree for a 3 x 3 tic-tac-toe game starting from
 -- the empty grid, and that the maximum depth of this tree is 9.
 
+-- INFO: exercise 11.1
 maxdepth' :: Int
 maxdepth' = maxdepth (gametree empty O)
 
+-- INFO: exercise 11.1
 maxdepth :: Tree a -> Int
 maxdepth (Node _ []) = 0
-maxdepth (Node _ ts) = 1 + maximum [maxdepth t | t <- ts]
+maxdepth (Node _ ts) = 1 + maximum (map maxdepth ts)
 
 -- Exercise 11.2: Our tic-tac-toe program always chooses the first move from the
 -- list of best moves. Modify the final program to choose a random move from the
@@ -26,29 +28,35 @@ maxdepth (Node _ ts) = 1 + maximum [maxdepth t | t <- ts]
 -- resulting game trees and selecting a move that results in a tree with the
 -- smallest depth.
 
+-- INFO: exercise 11.3
 shortestmove :: Grid -> Player -> Grid
 shortestmove g p = mindepth ts best
   where
     tree = prune depth (gametree g p)
     Node (_, best) ts = minmax tree
 
+-- INFO: exercise 11.3
 mindepth :: [Tree (Grid, Player)] -> Player -> Grid
-mindepth ts p
-  | null tds = error "no best move"
-  | otherwise = fst (minimumBy (comparing snd) tds)
+mindepth ts p = fst (minimumBy (comparing snd) tds)
   where
     tds = [(g', maxdepth t) | t@(Node (g', p') _) <- ts, p == p']
+
+-- WARN: Exercise 11.4 is incompatible with exercise 11.2 and 11.3
 
 -- Exercise 11.4: Modify the final program to:
 -- a. Let the user decide if they wish to play first or second;
 -- b. Allow the length of a winning line to also be changed;
 -- c. Generate the game tree once, rather than for each move;
--- d. Reduce the side of game tree using alpha-beta pruning.
+-- d. TODO: Reduce the side of game tree using alpha-beta pruning.
 
 -- Basic declarations
 
 size :: Int
 size = 3
+
+-- INFO: Exercise 4.b
+line :: Int
+line = 2
 
 type Grid = [[Player]]
 
@@ -75,16 +83,50 @@ turn g = if os <= xs then O else X
     xs = length (filter (== X) ps)
     ps = concat g
 
+-- INFO: Exercise 4.b
 wins :: Player -> Grid -> Bool
-wins p g = any line (rows ++ cols ++ dias)
+wins p g = any (all (== p)) (winLines g)
+
+-- INFO: Exercise 4.b
+winLines :: Grid -> [[Player]]
+winLines g = rows ++ cols ++ dias
   where
-    line = all (== p)
-    rows = g
-    cols = transpose g
-    dias = [diag g, diag (map reverse g)]
+    rows = subs g
+    cols = subs (transpose g)
+    dias = subs (diags g) ++ subs (diags (map reverse g))
+
+-- INFO: Exercise 4.b
+subs :: [[Player]] -> [[Player]]
+subs ps =
+  [take line (drop n p) | p <- ps, length p >= size, n <- [0 .. size - line]]
 
 diag :: Grid -> [Player]
-diag g = [g !! n !! n | n <- [0 .. size - 1]]
+diag g = [g !! n !! n | n <- [0 .. line - 1]]
+
+-- INFO: Exercise 4.b
+diags :: Grid -> [[Player]]
+diags = init . tail . fn []
+  where
+    fn xs rows = case rows of
+      [] -> remaining xs
+      (r : rs) -> map head xs : fn (r : map tail xs) rs
+    remaining [] = []
+    remaining xs = [y | y : _ <- xs] : remaining [ys | _ : ys <- xs]
+
+{-
+-- grid
+[[1,2,3],
+ [4,5,6],
+ [7,8,9]]
+
+-- store            -- return value
+[[1,2,3]]           -> []
+[[2,3],[4,5,6]]     -> [[1]]
+[[3],[5,6],[7,8,9]] -> [[1], [2,4]]
+[[6],[8,9]]         -> [[1], [2,4], [3,5,7]]
+[[9]]               -> [[1], [2,4], [3,5,7], [6,8]]
+[]                  -> [[1], [2,4], [3,5,7], [6,8], [9]]
+-}
 
 won :: Grid -> Bool
 won g = wins O g || wins X g
@@ -109,8 +151,8 @@ showPlayer B = ["   ", "   ", "   "]
 showPlayer X = ["   ", " X ", "   "]
 
 interleave :: a -> [a] -> [a]
-interleave x [] = []
-interleave x [y] = [y]
+interleave _ [] = []
+interleave _ [y] = [y]
 interleave x (y : ys) = y : x : interleave x ys
 
 {--
@@ -218,7 +260,7 @@ prompt p = "Player " ++ show p ++ ", enter your move: "
 
 -- Game trees
 
-data Tree a = Node a [Tree a]
+data Tree a = Node a [Tree a] | Null
   deriving (Show)
 
 gametree :: Grid -> Player -> Tree Grid
@@ -253,42 +295,105 @@ minmax (Node g ts)
     ts' = map minmax ts
     ps = [p | Node (_, p) _ <- ts']
 
+bestmove :: Grid -> Player -> Grid
+bestmove g p = head [g' | Node (g', p') _ <- ts, p' == best]
+  where
+    tree = prune depth (gametree g p)
+    Node (_, best) ts = minmax tree
+
+-- INFO: exercise 11.2
 bestmoves :: Grid -> Player -> [Grid]
 bestmoves g p = [g' | Node (g', p') _ <- ts, p' == best]
   where
     tree = prune depth (gametree g p)
     Node (_, best) ts = minmax tree
 
+-- INFO: Exercise 11.4.a
+minmax' :: Player -> Tree Grid -> Tree (Grid, Player)
+minmax' p (Node g [])
+  | wins O g = Node (g, O) []
+  | wins X g = Node (g, X) []
+  | otherwise = Node (g, B) []
+minmax' p (Node g ts)
+  | turn g == p = Node (g, minimum ps) ts'
+  | otherwise = Node (g, maximum ps) ts'
+  where
+    ts' = map (minmax' p) ts
+    ps = [p | Node (_, p) _ <- ts']
+
 -- Human vs computer
 
+-- INFO: Exercise 11.4.a.c
 main :: IO ()
 main = do
   hSetBuffering stdout NoBuffering
-  play empty O
+  p <- player
+  let tree = minmax' p (gametree empty p)
+  play p tree
 
-play :: Grid -> Player -> IO ()
-play g p = do
+-- INFO: Exercise 11.4.a
+player :: IO Player
+player = do
+  putStr "first (1) or second (2): "
+  order <- getLine
+  case order of
+    "1" -> return O
+    "2" -> return X
+    _ -> do
+      putStrLn "ERROR: Invalid player order"
+      player
+
+-- INFO: Exercise 11.4.b
+lineLength :: IO Int
+lineLength = do
+  putStr "line length (0 < l <= size): "
+  len <- read <$> getLine
+  if 0 < len && len <= size
+    then
+      return len
+    else do
+      putStrLn "ERROR: Invalid line length"
+      lineLength
+
+-- INFO: Exercise 11.4.c
+play :: Player -> Tree (Grid, Player) -> IO ()
+play player tree@(Node (g, _) _) = do
   cls
   goto (1, 1)
   putGrid g
-  play' g p
+  play' player tree
 
-play' :: Grid -> Player -> IO ()
-play' g p
-  | wins O g = putStrLn "Player O wins!\n"
-  | wins X g = putStrLn "Player X wins!\n"
-  | full g = putStrLn "It's a draw!\n"
-  | p == O = do
-      i <- getNat (prompt p)
-      case move g i p of
+-- INFO: Exercise 11.4.c
+play' :: Player -> Tree (Grid, Player) -> IO ()
+play' player tree@(Node (grid, bestPlayer) ts)
+  | wins O grid = putStrLn "Player O wins!\n"
+  | wins X grid = putStrLn "Player X wins!\n"
+  | full grid = putStrLn "It's a draw!\n"
+  | player == O = do
+      i <- getNat (prompt player)
+      case move grid i player of
         [] -> do
           putStrLn "ERROR: Invalid move"
-          play' g p
-        [g'] -> play g' (next p)
-  | p == X = do
+          play' player tree
+        [g'] -> do
+          let subtree = head [t | t@(Node (g, _) _) <- ts, g /= grid, g == g']
+          play (next player) subtree
+  | player == X = do
       putStr "Player X is thinking... "
-      -- let gs = bestmoves g p
-      -- n <- randomRIO (0, length gs - 1)
-      -- play (gs !! n) (next p)
-      let g' = shortestmove g p
-      play g' (next p)
+      {-
+        WARN: incompatible with other exercises
+        INFO: Exercise 11.2:
+
+        let gs = bestmoves g p
+        n <- randomRIO (0, length gs - 1)
+        play (gs !! n) (next p)
+      -}
+      {-
+        WARN: incompatible with other exercises
+        INFO: Exercise 11.3:
+
+        let g' = shortestmove g p
+        play g' (next p)
+      -}
+      let subtree = head [t | t@(Node (_, p) _) <- ts, p == bestPlayer]
+      play (next player) subtree
