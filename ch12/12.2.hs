@@ -12,26 +12,33 @@ and  f c = (->) a c = a -> c
 
 Functor laws
 
-fmap id = \g -> id . g
-        = \g -> (\a -> id (g a))
-        = \g -> (\a -> g a)
-        = \g -> g
-        = id
+1. Preserves identity
+
+fmap id
+  = \g -> id . g
+  = \g -> (\a -> id (g a))
+  = \g -> (\a -> g a)
+  = \g -> g
+  = id
 
 (g . h) :: b -> c
 a :: a -> b
 
-fmap (g . h) = \a -> (g . h) . a
-             = \a -> \b -> (g . h) (a b)
-             = \a -> \b -> g (h (a b))
+2. Preserves function composition
+
+fmap (g . h)
+  = \a -> (g . h) . a
+  = \a -> \b -> (g . h) (a b)
+  = \a -> \b -> g (h (a b))
 
 g :: b -> c
 h :: b -> c
 a :: a -> b
 
-fmap g . fmap h = (.) g . (.) h
-                = (.) g ((.) h)
-                = \a -> (.) g (h . a)
-                = \a -> g . h . a
-                = \a -> \b -> g (h (a b))
+fmap g . fmap h
+  = (.) g . (.) h
+  = (.) g ((.) h)
+  = \a -> (.) g (h . a)
+  = \a -> g . h . a
+  = \a -> \b -> g (h (a b))
 -}
