@@ -2,12 +2,27 @@
 -- (a ->). If you are familiar with combinatory logic, you might recognize pure
 -- and <*> for this type as being the well-known K and S combinators.
 
+newtype Fun a b = Fun {applyFun :: a -> b}
+
+instance Functor (Fun a) where
+  fmap :: (b -> c) -> Fun a b -> Fun a c
+  fmap g h = Fun $ g . applyFun h
+
+instance Applicative (Fun a) where
+  pure :: b -> Fun a b
+  pure b = Fun $ const b
+
+  (<*>) :: Fun a (b -> c) -> Fun a b -> Fun a c
+  g <*> h = Fun $ \x -> applyFun g x (applyFun h x)
+
+{-
 instance Applicative ((->) a) where
-  -- pure :: b -> (a -> b)
+  pure :: b -> (a -> b)
   pure = const
 
-  -- (<*>) :: (a -> b -> c) -> (a -> b) -> (a -> c)
+  (<*>) :: (a -> b -> c) -> (a -> b) -> (a -> c)
   g <*> h = \x -> g x (h x)
+-}
 
 {-
 Applicative laws

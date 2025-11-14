@@ -1,9 +1,17 @@
 -- Exercise 12.2: Complete the following instance declaration to make the
 -- partially-applied function type (a ->) into a functor:
 
+newtype Fun a b = Fun {applyFun :: a -> b}
+
+instance Functor (Fun a) where
+  fmap :: (b -> c) -> Fun a b -> Fun a c
+  fmap g h = Fun $ g . applyFun h
+
+{-
 instance Functor ((->) a) where
-  -- fmap :: (b -> c) -> (a -> b) -> (a -> c)
+  fmap :: (b -> c) -> (a -> b) -> a -> c
   fmap = (.)
+-}
 
 {-
 when f = (->) a
