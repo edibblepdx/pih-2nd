@@ -1,4 +1,4 @@
--- Exercise 12.7: Given the following type of epressions
+-- Exercise 12.7: Given the following type of expressions
 --
 -- data Expr a = Var a | Val Int | Add (Expr a) (Expr a)
 --               deriving Show
