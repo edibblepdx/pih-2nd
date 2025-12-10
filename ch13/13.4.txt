@@ -1,0 +1,48 @@
+Exercise 13.4: Explain why the final simplification of the grammar for arithmetic
+expressions has a dramatic effect on the efficiency of the resulting parser.
+
+Hint: begin by considering how an expression comprising a single number would be
+parsed if this simplification step had not been made.
+
+expr ::= term + expr | term
+term ::= factor * term | factor
+factor ::= ( expr ) | nat
+nat ::= 0 | 1 | 2 | ...
+
+expr ::= term (+ expr | Є)
+term ::= factor (* term | Є)
+factor ::= ( expr ) | nat
+nat ::= 0 | 1 | 2 | ...
+
+In the first grammar, the parser will first attempt to parse a natural as a
+"term + expr", realize that there is no '+', fail and backtrack and attempt the
+other case as a "term". The same thing happens in the rule for term resulting in
+four attempts to parse a natural.
+
+term + expr
+factor * term
+nat n
+fail (*)
+
+term + expr
+factor
+nat n
+fail (+)
+
+term
+factor * term
+nat n
+fail (*)
+
+term
+factor
+nat n
+success
+
+The second grammar rules are optionally followed by an addition, multiplication,
+or nothing, so that a natural will be parsed once.
+
+term
+factor
+nat n
+success

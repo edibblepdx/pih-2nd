@@ -120,6 +120,7 @@ int =
     return (-n)
     <|> nat
 
+-- parse token
 token :: Parser a -> Parser a
 token p = do
   space
@@ -127,14 +128,18 @@ token p = do
   space
   return v
 
+-- parse identifier
 identifier :: Parser String
 identifier = token ident
 
+-- parse natural
 natural :: Parser Int
 natural = token nat
 
+-- parse integer
 integer :: Parser Int
 integer = token int
 
+-- parse symbol
 symbol :: String -> Parser String
 symbol xs = token (string xs)

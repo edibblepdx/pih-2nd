@@ -1,0 +1,62 @@
+Exercise 13.3: Using our third grammar for arithmetic expressions, draw the parse
+trees for the expressions 2+3, 2*3*4, and (2+3)+4.
+
+        expr
+      /     | \
+     /      |  \
+    /       |   \
+    term    +   expr
+    |           |
+    factor      term
+    |           |
+    nat         factor
+    |           |
+    2           nat
+                |
+                3
+
+        expr
+        |
+        term
+      /     | \
+     /      |  \
+    /       |   \
+    factor  *   term
+    |         /     | \
+    nat      /      |  \
+    |       /       |   \
+    2       factor  *   term
+            |           |
+            nat         factor
+            |           |
+            3           nat
+                        |
+                        4
+
+              expr
+            /   |   \
+           /    |    \
+          /     |     \
+         /      |      \
+        /       |       \
+        term    +       expr
+        |               |
+        factor          term
+      / |   \           |
+     /  |    \          factor
+    /   |     \         |
+    (   expr   )        nat
+      /     | \         |
+     /      |  \        4
+    /       |   \
+    term    +   expr
+    |           |
+    factor      term
+    |           |
+    nat         factor
+    |           |
+    2           nat
+                |
+                3
+
+
