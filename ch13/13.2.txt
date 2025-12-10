@@ -1,0 +1,38 @@
+Exercise 13.2: Using our second grammar for arithmetic expressions, draw the two
+possible parse trees for the expression 2+3+4.
+
+        expr
+      /     | \
+     /      |  \
+    /       |   \
+    expr    +   expr
+    |         /     | \
+    |        /      |  \
+    |       /       |   \
+    term    expr    +   expr
+    |       |           |
+    factor  term        term
+    |       |           |
+    nat     factor      factor
+    |       |           |
+    2       nat         nat
+            |           |
+            3           4
+
+               expr
+              /     | \
+             /      |  \
+            /       |   \
+        expr        +   expr
+      /     | \         |
+     /      |  \        |
+    /       |   \       |
+    expr    +   expr    term
+    |           |       |
+    term        term    factor
+    |           |       |
+    factor      factor  nat
+    |           |       |
+    nat         nat     4
+    |           |
+    2           3
