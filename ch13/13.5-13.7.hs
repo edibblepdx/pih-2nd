@@ -63,7 +63,7 @@ power =
     f <- factor
     do
       symbol "^"
-      Pow f <$> term
+      Pow f <$> power
       <|> return f
 
 factor :: Parser Expr
@@ -80,7 +80,6 @@ int' :: Parser Expr
 int' =
   do
     char '-'
-    n <- nat
     Val . negate <$> nat
     <|> Val <$> nat
 
