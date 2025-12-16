@@ -1,0 +1,24 @@
+Exercise 15.2: Show why outermost evaluation is preferable to innermost for the
+purposes of evaluating the expressions fst (1+2,2+3).
+
+Outermost evaluation has one less step.
+
+Outermost
+=========
+
+fst (1+2,2+3)
+=   { applying fst }
+1+2
+=   { applying + }
+3
+
+Innermost
+=========
+
+fst (1+2,2+3)
+=   { applying first + }
+fst (3,2+3)
+=   { applying + }
+fst (3,5)
+=   { applying fst }
+3

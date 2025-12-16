@@ -1,0 +1,43 @@
+Exercise 15.1: Identify the redexes in the following expressions, and determine
+whether each redex is innermost, outermost, neither, or both.
+
+1 + (2*3)
+=========
+
+2*3
+- innermost
+- outermost
+
+(1+2) * (2+3)
+=============
+
+1+2
+- innermost
+- outermost
+- leftmost
+
+2+3
+- innermost
+- outermost
+
+fst (1+2, 2+3)
+==============
+
+fst (1+2, 2+3)
+- outermost
+
+1+2
+- innermost
+- leftmost
+
+2+3
+- innermost
+
+(\x -> 1 + x) (2*3)
+===================
+
+(\x -> 1 + x) (2*3)
+- outermost
+
+2*3
+- innermost

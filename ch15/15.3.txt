@@ -1,0 +1,12 @@
+Exercise 15.3: Given the definition mult = \x -> (\y -> x * y), show how the
+evaluation of mult 3 4 can be broken down into four separate steps.
+
+mult 3 4
+=   { applying mult }
+(\x -> (\y -> x * y)) 3 4
+=   { applying outer lambda }
+(\y -> 3 * y) 3 4
+=   { applying lambda }
+3 * 4
+=   { applying * }
+12
