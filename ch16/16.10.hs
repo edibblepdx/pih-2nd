@@ -3,6 +3,7 @@
 
 instance Monad [] where
   return x = [x]
+
   xs >>= f = [y | x <- xs, y <- f x]
 
 {-

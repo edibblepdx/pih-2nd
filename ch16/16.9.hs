@@ -6,13 +6,7 @@ instance Applicative Maybe where
   pure = Just
 
   Just f <*> m = fmap f m
-  Nothing <*> _m = Nothing
-
-  liftA2 f (Just x) (Just y) = Just (f x y)
-  liftA2 _ _ _ = Nothing
-
-  Just _m1 *> m2 = m2
-  Nothing *> _m2 = Nothing
+  Nothing <*> m = Nothing
 
 {-
 Applicative laws:
